@@ -25,10 +25,8 @@ def decrypt_file(file_path, key):
     else:
         decrypted_content = cipher.decrypt(ciphertext)
 
-    decrypted_file_path = f'decrypted_{file_path}'
-
     try:
-        with open(f'{decrypted_file_path}', 'wb') as decrypted_file:
+        with open(f'{file_path}', 'wb') as decrypted_file:
             decrypted_file.write(decrypted_content)
     except IOError:
         print("Ошибка при записи файла.")
@@ -37,7 +35,7 @@ def decrypt_file(file_path, key):
         print("Произошла неизвестная ошибка.")
         sys.exit(1)
     else:
-        print(f"Файл {file_path} успешно расшифрован и сохранён как {decrypted_file_path}.")
+        print(f"Файл {file_path} успешно расшифрован и сохранён.")
 
 
 if __name__ == '__main__':

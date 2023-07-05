@@ -25,5 +25,5 @@ analyst client for api CT
 3. Установить зависимости проекта
    командой ```pip install -r requirements.txt```.
 4. Запустить скрипт командой ```python decrypt.py ваш_файл.xlsx```.
-5. В папке появится файл ```decrypted_ваш_файл.xlsx```.
+5. Файл расшифрован.
 
