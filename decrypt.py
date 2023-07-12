@@ -1,7 +1,7 @@
 import json
 import sys
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 
 
 def env_extract() -> dict:
@@ -22,8 +22,11 @@ def decrypt_file(file_path, key):
     except IOError:
         print("Ошибка при чтении файла.")
         sys.exit(1)
-    else:
+    try:
         decrypted_content = cipher.decrypt(ciphertext)
+    except InvalidToken:
+        print("Неверный ключ шифрования.")
+        sys.exit(1)
 
     try:
         with open(f'{file_path}', 'wb') as decrypted_file:
