@@ -1,18 +1,20 @@
 import base64
+import json
 from collections import namedtuple
 from http import HTTPMethod, HTTPStatus
 from pathlib import Path
 from time import sleep
-from typing import Tuple, Optional, Dict, List
-from urllib import request, parse
-import json
+from typing import Dict, List, Optional, Tuple
+from urllib import parse, request
 from urllib.error import URLError
 
 
 class Request(request.Request):
     """Request with custom methods"""
+
     def get_method(self) -> str:
         return self.method
+
 
 class VacancyStatisticCollector:
     BASE_DIR = Path(__file__).resolve().parent
@@ -21,7 +23,7 @@ class VacancyStatisticCollector:
     ENV_FILE_PATH = BASE_DIR / ENV_FILE_NAME
     OUTPUT_FILE_PATH = BASE_DIR / OUTPUT_FILE_NAME
     ENV = namedtuple(
-        'Env',
+        "Env",
         [
             "email",
             "password",
@@ -32,15 +34,12 @@ class VacancyStatisticCollector:
             "statistics",
         ],
     )
-    ENV_DONT_EXISTS_MESSAGE = (
-        f"Удостоверьтесь, что вы создали файл {ENV_FILE_NAME}"
-    )
+    ENV_DONT_EXISTS_MESSAGE = f"Удостоверьтесь, что вы создали файл {ENV_FILE_NAME}"
     ENV_WRONG_FORMAT_MESSAGE = (
         f"Удостоверьтесь в правильности формата файла {ENV_FILE_NAME}"
     )
     ENV_WRONG_NAMES_MESSAGE = (
-        f"Удостоверьтесь в правильном названии аргументов файла "
-        f"{ENV_FILE_NAME}"
+        f"Удостоверьтесь в правильном названии аргументов файла " f"{ENV_FILE_NAME}"
     )
     SERVER_TRACKER_NOT_AVAILABLE_MESSAGE = "Сервер трекера недоступен"
     SERVER_PROVIDER_NOT_AVAILABLE_MESSAGE = "Сервер парсера недоступен"
@@ -50,8 +49,7 @@ class VacancyStatisticCollector:
     )
     ERROR_MESSAGE = "Работа клиента завершилась с ошибкой"
     AUTHORIZE_TRACKER_FAILED_MESSAGE = (
-        "Не удалось авторизоваться в "
-        "трекере проверьте файл окружения"
+        "Не удалось авторизоваться в " "трекере проверьте файл окружения"
     )
 
     SUCCESS_MESSAGE = "OK"
@@ -77,7 +75,7 @@ class VacancyStatisticCollector:
             hh_vacancies=self._get_hh_vacancies(Env),
         )
 
-        with open(self.OUTPUT_FILE_PATH, 'w', encoding='utf-8') as f:
+        with open(self.OUTPUT_FILE_PATH, "w", encoding="utf-8") as f:
             json.dump(result, f, indent=2, ensure_ascii=False)
         return "Файл data.json создан/обновлён"
 
@@ -112,12 +110,13 @@ class VacancyStatisticCollector:
     def extract_env(cls) -> Tuple[Optional[ENV], str]:
         if not cls.ENV_FILE_PATH.exists() or not cls.ENV_FILE_PATH.is_file():
             return None, cls.ENV_DONT_EXISTS_MESSAGE
-        with open(cls.ENV_FILE_PATH, 'r') as read_file:
+        with open(cls.ENV_FILE_PATH, "r") as read_file:
             try:
                 result = json.load(read_file)
                 env_obj = cls.ENV(
                     **{
-                        key: value for key, value in result.items()
+                        key: value
+                        for key, value in result.items()
                         if key in cls.ENV._fields
                     }
                 )
@@ -129,18 +128,22 @@ class VacancyStatisticCollector:
 
     @classmethod
     def get_tracker_token(cls, env_obj: ENV) -> Tuple[Optional[str], str]:
-        auth_data = parse.urlencode({
-            "email": env_obj.email,
-            "password": env_obj.password,
-            "password2": env_obj.password
-        }).encode()
+        auth_data = parse.urlencode(
+            {
+                "email": env_obj.email,
+                "password": env_obj.password,
+                "password2": env_obj.password,
+            }
+        ).encode()
         auth_req = Request(
-            env_obj.token_url, data=auth_data, method=HTTPMethod.POST,
+            env_obj.token_url,
+            data=auth_data,
+            method=HTTPMethod.POST,
         )
         try:
             auth_resp = request.urlopen(auth_req)
-            raw_token = auth_resp.headers.get('Set-Cookie')
-            clear_token = raw_token[:raw_token.find(";")]
+            raw_token = auth_resp.headers.get("Set-Cookie")
+            clear_token = raw_token[: raw_token.find(";")]
         except URLError:
             return None, cls.SERVER_TRACKER_NOT_AVAILABLE_MESSAGE
         if not clear_token:
@@ -163,18 +166,16 @@ class VacancyStatisticCollector:
         return cls.SUCCESS_MESSAGE
 
     @staticmethod
-    def construct_tracker_request(
-            url: str, token: str, method: HTTPMethod
-    ) -> Request:
+    def construct_tracker_request(url: str, token: str, method: HTTPMethod) -> Request:
         return Request(
             url,
-            headers={'User-Agent': 'Analytic-Client', 'Cookie': token},
+            headers={"User-Agent": "Analytic-Client", "Cookie": token},
             method=method,
         )
 
     @staticmethod
     def construct_provider_request(
-            url: str, log_pass: str, method: HTTPMethod
+        url: str, log_pass: str, method: HTTPMethod
     ) -> Request:
         return Request(
             url,
@@ -182,9 +183,9 @@ class VacancyStatisticCollector:
                 "User-Agent": "Analytic-Client",
                 "Authorization": (
                     f"Basic {base64.b64encode(log_pass.encode()).decode()}"
-                )
+                ),
             },
-            method=method
+            method=method,
         )
 
 
