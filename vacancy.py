@@ -35,7 +35,7 @@ def func(email, password, token_url):
         for prefix in prefix_set:
             analyst_url = env[prefix]
             while analyst_url:
-                sleep(1)
+                sleep(3)
                 analyst_req = request.Request(analyst_url,
                                               headers={'User-Agent': 'Analytic-Client', 'Cookie': clear_token},
                                               method="GET")
