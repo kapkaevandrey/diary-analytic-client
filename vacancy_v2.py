@@ -95,7 +95,7 @@ class VacancyStatisticCollector:
             print(out_json["next"])
             result += out_json["results"]
             url = out_json["next"]
-            sleep(1)
+            sleep(3)
         return result
 
     def _get_hh_vacancies(self, env_obj: ENV) -> List[Dict]:
