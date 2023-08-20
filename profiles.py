@@ -24,7 +24,7 @@ def func(email, password, token_url):
         result = {"result": []}
         analyst_url = env["profiles"]
         while analyst_url:
-            sleep(1)
+            sleep(3)
             analyst_req = request.Request(analyst_url, headers={'User-Agent': 'Analytic-Client', 'Cookie': clear_token},
                                           method="GET")
             analyst_resp = request.urlopen(analyst_req)
