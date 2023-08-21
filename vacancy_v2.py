@@ -103,7 +103,6 @@ class VacancyStatisticCollector:
         result = []
         url = env_obj.hh_vacancies
         while url:
-            print(url)
             request_obj = self.construct_provider_request(
                 url, env_obj.provider_log_pass, HTTPMethod.GET
             )
