@@ -34,6 +34,7 @@ class VacancyStatisticCollector:
             "statistics",
         ],
     )
+    REQUEST_PAUSE = 3
     ENV_DONT_EXISTS_MESSAGE = f"Удостоверьтесь, что вы создали файл {ENV_FILE_NAME}"
     ENV_WRONG_FORMAT_MESSAGE = (
         f"Удостоверьтесь в правильности формата файла {ENV_FILE_NAME}"
@@ -95,16 +96,20 @@ class VacancyStatisticCollector:
             print(out_json["next"])
             result += out_json["results"]
             url = out_json["next"]
-            sleep(3)
+            sleep(self.REQUEST_PAUSE)
         return result
 
     def _get_hh_vacancies(self, env_obj: ENV) -> List[Dict]:
+        result = []
         url = env_obj.hh_vacancies
-        request_obj = self.construct_provider_request(
-            url, env_obj.provider_log_pass, HTTPMethod.GET
-        )
-        with request.urlopen(request_obj) as file:
-            return json.loads(file.read())
+        while url:
+            request_obj = self.construct_provider_request(
+                url, env_obj.provider_log_pass, HTTPMethod.GET
+            )
+            out_json = json.loads(request.urlopen(request_obj).read())
+            result += out_json["results"]
+            url = out_json["next"]
+        return result
 
     @classmethod
     def extract_env(cls) -> Tuple[Optional[ENV], str]:
